@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "puppetlabs/centos-7.0-64-puppet"
+  config.vm.box = "hashicorp/precise64"
 
  # config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
  # config.vm.synced_folder ".", "/vagrant", type: "nfs" 
@@ -20,11 +20,16 @@ Vagrant.configure(2) do |config|
 
   # config.vm.box_check_update = false
 
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 80, host: 8080
 
   # config.vm.synced_folder "../data", "/vagrant_data"
   config.vm.provision "docker" do |d|
-    d.build_image "/vagrant"
+		d.run "mysql",
+			image: "mysql:5.6",
+			args: "-e MYSQL_ROOT_PASSWORD=testpass -e MYSQL_DATABASE=teampass -e MYSQL_USER=teampass -e MYSQL_PASSWORD=Team!!!Pass"
+    d.run "teampass",
+			image: "teampass/teampass",
+			args: "--link mysql:mysql -p 80:80"
   end
 
 end
